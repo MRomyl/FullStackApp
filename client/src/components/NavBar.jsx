@@ -1,36 +1,39 @@
-import React from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../auth/AuthProvider.jsx";
+import { Link } from "react-router-dom";
+import { useAuth } from "../auth/AuthProvider";
 
 export default function NavBar() {
   const { user, logout } = useAuth();
-  const navigate = useNavigate();
-
-  async function handleLogout() {
-    await logout();
-    navigate("/login");
-  }
 
   return (
-    <div style={{ borderBottom: "1px solid #ddd", padding: "12px 16px" }}>
-      <div style={{ maxWidth: 900, margin: "0 auto", display: "flex", alignItems: "center", gap: 12 }}>
-        <Link to="/dashboard" style={{ textDecoration: "none", fontWeight: 700 }}>
+    <nav
+      style={{
+        borderBottom: "1px solid var(--border)",
+        background: "#000"
+      }}
+    >
+      <div
+        className="container"
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 20
+        }}
+      >
+        <Link style={{ fontWeight: 800, fontSize: 18 }} to="/">
           StudyBuddy
         </Link>
 
-        <div style={{ display: "flex", gap: 10 }}>
-          {user ? (
-            <>
-              <Link to="/courses">Courses</Link>
-            </>
-          ) : null}
-        </div>
+        {user && (
+          <>
+            <Link to="/courses">Courses</Link>
+          </>
+        )}
 
-        <div style={{ marginLeft: "auto", display: "flex", gap: 10, alignItems: "center" }}>
+        <div style={{ marginLeft: "auto", display: "flex", gap: 12 }}>
           {user ? (
             <>
-              <span style={{ fontSize: 14, opacity: 0.8 }}>Hi, {user.username}</span>
-              <button onClick={handleLogout}>Logout</button>
+              <span className="muted">{user.username}</span>
+              <button onClick={logout}>Logout</button>
             </>
           ) : (
             <>
@@ -40,6 +43,6 @@ export default function NavBar() {
           )}
         </div>
       </div>
-    </div>
+    </nav>
   );
 }
