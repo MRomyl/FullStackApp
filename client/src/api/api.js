@@ -1,5 +1,7 @@
-const API_BASE = "https://fullstackapp-b5xp.onrender.com";
-console.log("DEPLOY CHECK 123 — API_BASE:", API_BASE);
+
+const API_BASE =
+  (import.meta.env.VITE_API_BASE_URL && import.meta.env.VITE_API_BASE_URL.trim()) ||
+  "https://fullstackapp-b5xp.onrender.com";
 
 async function request(path, { method = "GET", body, headers } = {}) {
   const res = await fetch(`${API_BASE}${path}`, {
@@ -25,10 +27,7 @@ async function request(path, { method = "GET", body, headers } = {}) {
       (data && data.error) ||
       (typeof data === "string" && data) ||
       `Request failed (${res.status})`;
-    const err = new Error(message);
-    err.status = res.status;
-    err.data = data;
-    throw err;
+    throw new Error(message);
   }
 
   return data;
