@@ -1,4 +1,5 @@
 const API_BASE = "https://fullstackapp-b5xp.onrender.com";
+console.log("DEPLOY CHECK 123 — API_BASE:", API_BASE);
 
 async function request(path, { method = "GET", body, headers } = {}) {
   const res = await fetch(`${API_BASE}${path}`, {
