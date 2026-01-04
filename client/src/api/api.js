@@ -1,16 +1,15 @@
-const API_BASE = import.meta.env.VITE_API_BASE_URL || "https://fullstackapp-b5xp.onrender.com";
-
+const API_BASE = "https://fullstackapp-b5xp.onrender.com";
 
 async function request(path, { method = "GET", body, headers } = {}) {
   const res = await fetch(`${API_BASE}${path}`, {
     method,
-    headers: { "Content-Type": "application/json", ...(headers || {}) },
+    headers: {
+      "Content-Type": "application/json",
+      ...(headers || {})
+    },
     credentials: "include",
     body: body ? JSON.stringify(body) : undefined
   });
-  
-}
-
 
   let data = null;
   const contentType = res.headers.get("content-type") || "";
@@ -32,7 +31,7 @@ async function request(path, { method = "GET", body, headers } = {}) {
   }
 
   return data;
-
+}
 
 export const api = {
   // AUTH
