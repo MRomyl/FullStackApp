@@ -36,7 +36,8 @@ def create_app():
     return app
 
 
-app = create_app()
 
 if __name__ == "__main__":
     app.run(port=5555, debug=True)
+
+app = create_app()

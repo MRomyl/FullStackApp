@@ -1,15 +1,17 @@
+const API_BASE = import.meta.env.VITE_API_BASE_URL || "https://fullstackapp-b5xp.onrender.com";
+
+
 async function request(path, { method = "GET", body, headers } = {}) {
-  const res = await fetch(path, {
+  const res = await fetch(`${API_BASE}${path}`, {
     method,
-    headers: {
-      "Content-Type": "application/json",
-      ...(headers || {})
-    },
-    credentials: "include", // IMPORTANT: send/receive session cookie
+    headers: { "Content-Type": "application/json", ...(headers || {}) },
+    credentials: "include",
     body: body ? JSON.stringify(body) : undefined
   });
+  
+}
 
-  // Try to parse JSON; if none, return null
+
   let data = null;
   const contentType = res.headers.get("content-type") || "";
   if (contentType.includes("application/json")) {
@@ -30,7 +32,7 @@ async function request(path, { method = "GET", body, headers } = {}) {
   }
 
   return data;
-}
+
 
 export const api = {
   // AUTH
