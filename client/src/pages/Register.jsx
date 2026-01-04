@@ -1,56 +1,74 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../auth/AuthProvider.jsx";
+import { api } from "../api/api";
+import { useAuth } from "../auth/AuthProvider";
 
 export default function Register() {
-  const { register, setAuthError, authError } = useAuth();
+  const nav = useNavigate();
+  const { setUser } = useAuth();
+
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [submitting, setSubmitting] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
 
-  const navigate = useNavigate();
-
-  async function handleSubmit(e) {
+  async function onSubmit(e) {
     e.preventDefault();
-    setAuthError("");
-    setSubmitting(true);
-
+    setError("");
+    setBusy(true);
     try {
-      await register(username.trim(), password);
-      navigate("/dashboard", { replace: true });
+      const u = await api.register({ username, password });
+      setUser(u);
+      nav("/");
     } catch (err) {
-      setAuthError(err.message || "Registration failed");
+      setError(err?.message || "Registration failed.");
     } finally {
-      setSubmitting(false);
+      setBusy(false);
     }
   }
 
   return (
-    <div style={{ maxWidth: 420 }}>
-      <h2>Register</h2>
-      <form onSubmit={handleSubmit} style={{ display: "grid", gap: 10 }}>
-        <input
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          placeholder="Username"
-          autoComplete="username"
-        />
-        <input
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="Password"
-          type="password"
-          autoComplete="new-password"
-        />
-        <button disabled={submitting} type="submit">
-          {submitting ? "Creating..." : "Create account"}
-        </button>
-        {authError ? <div style={{ color: "crimson" }}>{authError}</div> : null}
-      </form>
+    <div className="formShell">
+      <div className="formCard">
+        <div className="formHeader">
+          <h1>Create account</h1>
+          <div className="muted">Takes 10 seconds. Track your courses instantly.</div>
+        </div>
 
-      <p style={{ marginTop: 10 }}>
-        Already have an account? <Link to="/login">Login</Link>
-      </p>
+        {error && <div className="error" style={{ marginTop: 12 }}>{error}</div>}
+
+        <form className="formGrid" onSubmit={onSubmit}>
+          <div style={{ display: "grid", gap: 6 }}>
+            <label>Username</label>
+            <input
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder="egon"
+              autoComplete="username"
+              required
+            />
+          </div>
+
+          <div style={{ display: "grid", gap: 6 }}>
+            <label>Password</label>
+            <input
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              type="password"
+              autoComplete="new-password"
+              required
+            />
+          </div>
+
+          <button disabled={busy}>{busy ? "Creating..." : "Create account"}</button>
+        </form>
+
+        <div className="smallLinkRow">
+          <span className="muted">Already have an account?</span>
+          <Link to="/login">Login</Link>
+        </div>
+      </div>
     </div>
   );
 }

@@ -1,57 +1,74 @@
-import React, { useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useAuth } from "../auth/AuthProvider.jsx";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { api } from "../api/api";
+import { useAuth } from "../auth/AuthProvider";
 
 export default function Login() {
-  const { login, setAuthError, authError } = useAuth();
+  const nav = useNavigate();
+  const { setUser } = useAuth();
+
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [submitting, setSubmitting] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
 
-  const navigate = useNavigate();
-  const location = useLocation();
-  const redirectTo = location.state?.from || "/dashboard";
-
-  async function handleSubmit(e) {
+  async function onSubmit(e) {
     e.preventDefault();
-    setAuthError("");
-    setSubmitting(true);
+    setError("");
+    setBusy(true);
     try {
-      await login(username.trim(), password);
-      navigate(redirectTo, { replace: true });
+      const u = await api.login({ username, password });
+      setUser(u);
+      nav("/");
     } catch (err) {
-      setAuthError(err.message || "Login failed");
+      setError(err?.message || "Login failed.");
     } finally {
-      setSubmitting(false);
+      setBusy(false);
     }
   }
 
   return (
-    <div style={{ maxWidth: 420 }}>
-      <h2>Login</h2>
-      <form onSubmit={handleSubmit} style={{ display: "grid", gap: 10 }}>
-        <input
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          placeholder="Username"
-          autoComplete="username"
-        />
-        <input
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="Password"
-          type="password"
-          autoComplete="current-password"
-        />
-        <button disabled={submitting} type="submit">
-          {submitting ? "Logging in..." : "Login"}
-        </button>
-        {authError ? <div style={{ color: "crimson" }}>{authError}</div> : null}
-      </form>
+    <div className="formShell">
+      <div className="formCard">
+        <div className="formHeader">
+          <h1>Login</h1>
+          <div className="muted">Welcome back. Keep the streak going.</div>
+        </div>
 
-      <p style={{ marginTop: 10 }}>
-        Need an account? <Link to="/register">Register</Link>
-      </p>
+        {error && <div className="error" style={{ marginTop: 12 }}>{error}</div>}
+
+        <form className="formGrid" onSubmit={onSubmit}>
+          <div style={{ display: "grid", gap: 6 }}>
+            <label>Username</label>
+            <input
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder="egon"
+              autoComplete="username"
+              required
+            />
+          </div>
+
+          <div style={{ display: "grid", gap: 6 }}>
+            <label>Password</label>
+            <input
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              type="password"
+              autoComplete="current-password"
+              required
+            />
+          </div>
+
+          <button disabled={busy}>{busy ? "Logging in..." : "Login"}</button>
+        </form>
+
+        <div className="smallLinkRow">
+          <span className="muted">No account?</span>
+          <Link to="/register">Create one</Link>
+        </div>
+      </div>
     </div>
   );
 }
