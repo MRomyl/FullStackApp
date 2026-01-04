@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request, session
 from flask_migrate import Migrate
 from flask_cors import CORS
 
@@ -14,21 +14,37 @@ def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
 
-    # DB / crypto
+    # DB / migrations / hashing
     db.init_app(app)
     bcrypt.init_app(app)
     Migrate(app, db)
 
-    # CORS: with Vite proxy you *won't* need this, but it won't hurt.
-    # If you deploy separately, set origins to your frontend domain.
-    CORS(app, supports_credentials=True)
+    # ✅ IMPORTANT: allow your Vercel frontend to call this API + send cookies
+    allowed_origins = [
+        "https://studybuddy-sooty-one.vercel.app"
+        # If you use a custom domain later, add it here too.
+        # "https://yourdomain.com"
+    ]
 
-    # Health check
+    CORS(
+        app,
+        supports_credentials=True,
+        origins=allowed_origins,
+        allow_headers=["Content-Type"],
+        methods=["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+    )
+
+    # Helpful health route
     @app.get("/api/health")
     def health():
         return jsonify({"ok": True}), 200
 
-    # Register blueprints (namespaced)
+    # OPTIONAL: make root not confusing (so base URL isn't 404)
+    @app.get("/")
+    def root():
+        return jsonify({"message": "API running. Try /api/health"}), 200
+
+    # Blueprints (namespaced)
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
     app.register_blueprint(courses_bp, url_prefix="/api/courses")
     app.register_blueprint(sessions_bp, url_prefix="/api/sessions")
@@ -36,8 +52,7 @@ def create_app():
     return app
 
 
+app = create_app()
 
 if __name__ == "__main__":
     app.run(port=5555, debug=True)
-
-app = create_app()
