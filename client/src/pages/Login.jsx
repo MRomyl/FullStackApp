@@ -43,7 +43,7 @@ export default function Login() {
             <input
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              placeholder="egon"
+              placeholder="username"
               autoComplete="username"
               required
             />
@@ -54,7 +54,7 @@ export default function Login() {
             <input
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
+              placeholder="password"
               type="password"
               autoComplete="current-password"
               required
